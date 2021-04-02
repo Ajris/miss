@@ -24,7 +24,7 @@ epsilon = rate_spreaders_to_isolated + rate_from_infected_to_recovery_or_dead + 
 
 basic_reproduction_number = rate_susceptible_from_spreaders * rate_people_completed_incubation_become_infected * (rate_natural_birth_and_death + rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine) / (phi * epsilon * psi)
 
-number_of_days = 730
+number_of_days = 365
 number_of_points_on_chart = number_of_days * 2
 period_interval = np.linspace(0, number_of_days, number_of_points_on_chart)
 
