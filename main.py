@@ -7,15 +7,15 @@ rate_from_infected_to_recovery_or_dead = 0.0714
 duration_of_infectiousness = 1.0 / rate_from_infected_to_recovery_or_dead
 rate_spreaders_to_isolated = 0.0
 rate_natural_birth_and_death = 0.01
-rate_susceptible_to_quarantine_or_stay_at_home = 0.0
+rate_susceptible_to_quarantine_or_stay_at_home = 0.01
 rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine = 0.0
-rate_people_completed_incubation_become_infected = 0.1923
+rate_people_completed_incubation_become_infected = 0.2923
 duration_of_incubation = 1.0 / rate_people_completed_incubation_become_infected
-rate_exposed_to_isolated = 0.1
+rate_exposed_to_isolated = 0.15
 
-rate_infectious_recover = 0.9
+rate_infectious_recover = 0.97
 rate_infectious_die = 1 - rate_infectious_recover
-rate_isolated_infected_recover = 0.9
+rate_isolated_infected_recover = 0.97
 rate_isolated_infected_die = 1 - rate_isolated_infected_recover
 
 psi = rate_natural_birth_and_death + rate_susceptible_to_quarantine_or_stay_at_home + rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine
@@ -24,19 +24,22 @@ epsilon = rate_spreaders_to_isolated + rate_from_infected_to_recovery_or_dead + 
 
 basic_reproduction_number = rate_susceptible_from_spreaders * rate_people_completed_incubation_become_infected * (rate_natural_birth_and_death + rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine) / (phi * epsilon * psi)
 
-number_of_days = 365
+number_of_days = 730
 number_of_points_on_chart = number_of_days * 2
 period_interval = np.linspace(0, number_of_days, number_of_points_on_chart)
 
-start_susceptible_population = 0.9
-start_spreader_population = 0.04
+start_susceptible_population = 0.999
+start_spreader_population = 0.001
 start_quarantined_stay_at_home_population = 0.0
-start_exposed_population = 0.06
+start_exposed_population = 0.0
 start_quarantined_isolated_population = 0.0
 start_recovered_population = 0.0
 start_dead_population = 0.0
 
 def model(current_population, t):
+    global rate_susceptible_from_spreaders
+    if t > 365.0:
+        rate_susceptible_from_spreaders = 0.6
     current_susceptible_population, current_spreader_population, current_quarantined_stay_at_home_population, current_exposed_population, current_quarantined_isolated_population, current_recovered_population, current_dead_population = current_population
 
     increase_susceptible_population = rate_natural_birth_and_death - rate_susceptible_from_spreaders * current_susceptible_population * current_spreader_population - (rate_susceptible_to_quarantine_or_stay_at_home + rate_natural_birth_and_death) * current_susceptible_population + rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine * current_quarantined_stay_at_home_population
@@ -75,15 +78,27 @@ def main():
     for i in range(1, number_of_points_on_chart):
         sum_of_all_population[i] = (susceptible_population[i] + spreader_population[i] + quarantined_stay_at_home_population[i] + exposed_population[i] + quarantined_isolated_population[i] + recovered_population[i] + dead_population[i])
 
+    converted_exposed = []
+
+    for i in range(1, number_of_points_on_chart):
+        converted_exposed.append(40000000*exposed_population[i])
+
     # plt.plot(period_interval, sum_of_all_population, 'b:', label='n(t)')
-    plt.yticks(np.arange(0.0, 1.1, 0.1))
-    plt.plot(period_interval, susceptible_population, 'b-', label='Susceptible')
-    plt.plot(period_interval, spreader_population, 'y', label='Infectiously Infected')
-    plt.plot(period_interval, quarantined_stay_at_home_population, 'r-', label='Quarantined-StayAtHome')
-    plt.plot(period_interval, exposed_population, 'g-', label='Exposed')
-    plt.plot(period_interval, quarantined_isolated_population, 'r--', label='Quarantined-Isolated')
-    plt.plot(period_interval, recovered_population, 'g--', label='Recovered')
-    plt.plot(period_interval, dead_population, 'g:', label='Dead')
+    # plt.yticks(np.arange(0.0, 1.1, 0.1))
+    # plt.plot(period_interval, susceptible_population, 'b-', label='Susceptible')
+    # plt.plot(period_interval, spreader_population, 'y', label='Infectiously Infected')
+    # # plt.plot(period_interval, quarantined_stay_at_home_population, 'r-', label='Quarantined-StayAtHome')
+    # plt.plot(period_interval, exposed_population, 'g-', label='Exposed')
+    # # plt.plot(period_interval, quarantined_isolated_population, 'r--', label='Quarantined-Isolated')
+    # plt.plot(period_interval, recovered_population, 'g--', label='Recovered')
+    # plt.plot(period_interval, dead_population, 'g:', label='Dead')
+    # plt.ylabel('Part of population')
+    # plt.xlabel('Time(Days)')
+    # plt.legend(loc='best')
+    # plt.show()
+    plt.ylim((0, 2500000))
+    # plt.yticks(np.arange(0.0, 5000000.0, 500000.0))
+    plt.plot(period_interval[1:], converted_exposed, 'b-', label='Exposed')
     plt.ylabel('Part of population')
     plt.xlabel('Time(Days)')
     plt.legend(loc='best')
