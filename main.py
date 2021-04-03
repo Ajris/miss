@@ -7,11 +7,11 @@ rate_from_infected_to_recovery_or_dead = 0.0714
 duration_of_infectiousness = 1.0 / rate_from_infected_to_recovery_or_dead
 rate_spreaders_to_isolated = 0.0
 rate_natural_birth_and_death = 0.01
-rate_susceptible_to_quarantine_or_stay_at_home = 0.01
-rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine = 0.0
-rate_people_completed_incubation_become_infected = 0.2923
+rate_susceptible_to_quarantine_or_stay_at_home = 0.0003
+rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine = 0.001
+rate_people_completed_incubation_become_infected = 0.1923
 duration_of_incubation = 1.0 / rate_people_completed_incubation_become_infected
-rate_exposed_to_isolated = 0.15
+rate_exposed_to_isolated = 0.1
 
 rate_infectious_recover = 0.97
 rate_infectious_die = 1 - rate_infectious_recover
@@ -38,8 +38,10 @@ start_dead_population = 0.0
 
 def model(current_population, t):
     global rate_susceptible_from_spreaders
+    global rate_susceptible_to_quarantine_or_stay_at_home
     if t > 365.0:
         rate_susceptible_from_spreaders = 0.6
+        rate_susceptible_to_quarantine_or_stay_at_home = 0.0008
     current_susceptible_population, current_spreader_population, current_quarantined_stay_at_home_population, current_exposed_population, current_quarantined_isolated_population, current_recovered_population, current_dead_population = current_population
 
     increase_susceptible_population = rate_natural_birth_and_death - rate_susceptible_from_spreaders * current_susceptible_population * current_spreader_population - (rate_susceptible_to_quarantine_or_stay_at_home + rate_natural_birth_and_death) * current_susceptible_population + rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine * current_quarantined_stay_at_home_population
@@ -79,9 +81,11 @@ def main():
         sum_of_all_population[i] = (susceptible_population[i] + spreader_population[i] + quarantined_stay_at_home_population[i] + exposed_population[i] + quarantined_isolated_population[i] + recovered_population[i] + dead_population[i])
 
     converted_exposed = []
+    converted_quarantined_stay_at_home = []
 
     for i in range(1, number_of_points_on_chart):
         converted_exposed.append(40000000*exposed_population[i])
+        converted_quarantined_stay_at_home.append(40000000*quarantined_stay_at_home_population[i])
 
     # plt.plot(period_interval, sum_of_all_population, 'b:', label='n(t)')
     # plt.yticks(np.arange(0.0, 1.1, 0.1))
@@ -98,7 +102,8 @@ def main():
     # plt.show()
     plt.ylim((0, 2500000))
     # plt.yticks(np.arange(0.0, 5000000.0, 500000.0))
-    plt.plot(period_interval[1:], converted_exposed, 'b-', label='Exposed')
+    # plt.plot(period_interval[1:], converted_exposed, 'b-', label='Exposed')
+    plt.plot(period_interval[1:], converted_quarantined_stay_at_home, 'b-', label='Quarantined')
     plt.ylabel('Part of population')
     plt.xlabel('Time(Days)')
     plt.legend(loc='best')
