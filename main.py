@@ -2,7 +2,7 @@ import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-rate_susceptible_from_spreaders = 0.3
+rate_susceptible_from_spreaders = 0.5
 rate_from_infected_to_recovery_or_dead = 0.0714
 duration_of_infectiousness = 1.0 / rate_from_infected_to_recovery_or_dead
 rate_spreaders_to_isolated = 0.0
@@ -11,7 +11,7 @@ rate_susceptible_to_quarantine_or_stay_at_home = 0.0003
 rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine = 0.001
 rate_people_completed_incubation_become_infected = 0.1923
 duration_of_incubation = 1.0 / rate_people_completed_incubation_become_infected
-rate_exposed_to_isolated = 0.1
+rate_exposed_to_isolated = 0.2
 
 rate_infectious_recover = 0.97
 rate_infectious_die = 1 - rate_infectious_recover
@@ -39,9 +39,16 @@ start_dead_population = 0.0
 def model(current_population, t):
     global rate_susceptible_from_spreaders
     global rate_susceptible_to_quarantine_or_stay_at_home
-    if t > 365.0:
+    if 100.0 < t < 200:
+        rate_susceptible_from_spreaders = 0.3
+        rate_susceptible_to_quarantine_or_stay_at_home = 0.0006
+    elif t > 300.0:
+        rate_susceptible_from_spreaders = 0.4
+        rate_susceptible_to_quarantine_or_stay_at_home = 0.0004
+    else:
         rate_susceptible_from_spreaders = 0.6
-        rate_susceptible_to_quarantine_or_stay_at_home = 0.0008
+        rate_susceptible_to_quarantine_or_stay_at_home = 0.0002
+
     current_susceptible_population, current_spreader_population, current_quarantined_stay_at_home_population, current_exposed_population, current_quarantined_isolated_population, current_recovered_population, current_dead_population = current_population
 
     increase_susceptible_population = rate_natural_birth_and_death - rate_susceptible_from_spreaders * current_susceptible_population * current_spreader_population - (rate_susceptible_to_quarantine_or_stay_at_home + rate_natural_birth_and_death) * current_susceptible_population + rate_people_stay_at_home_due_to_ineffectiveness_of_home_quarantine * current_quarantined_stay_at_home_population
